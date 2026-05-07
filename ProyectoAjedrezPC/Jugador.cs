@@ -8,6 +8,24 @@ namespace ProyectoAjedrezPC
 {
     internal class Jugador
     {
+        public string nombre { get; set; }
+        public int puntaje { get; set; } 
+        public string color { get; set; } 
 
+        public Jugador(string nom, string col)
+        {
+            nombre = nom;
+            color = col;
+            puntaje = 0;
+        }
+
+        public void SumarPuntos(Pieza piezaCapturada)
+        {
+            puntaje += 10;
+            if (piezaCaoturada is Rey)
+            {
+                puntaje += 50;
+            }
+        }
     }
 }
