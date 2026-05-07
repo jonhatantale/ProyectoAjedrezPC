@@ -22,7 +22,7 @@ namespace ProyectoAjedrezPC
         public void SumarPuntos(Pieza piezaCapturada)
         {
             puntaje += 10;
-            if (piezaCaoturada is Rey)
+            if (piezaCapturada is Rey)
             {
                 puntaje += 50;
             }
