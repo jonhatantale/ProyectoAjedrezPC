@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="class jugador/class jugador.csproj" />
+  <Project Path="class pieza/class pieza.csproj" />
+  <Project Path="class tablero/class tablero.csproj" />
+  <Project Path="Menu principal/Menu principal.csproj" />
+</Solution>
