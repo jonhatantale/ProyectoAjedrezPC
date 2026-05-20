@@ -1,1 +1,6 @@
-﻿Console.WriteLine("Holaaa");
+﻿namespace ProyectoAjedrezPC;
+
+class Program
+{
+}
+
