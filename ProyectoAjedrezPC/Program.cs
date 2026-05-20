@@ -10,6 +10,45 @@ class Program
 
     static void Main(string[] args)
     {
+        Console.Title = "Juego de Estrategia en Tablero";
+
+        // Login obligatorio antes de entrar al menú
+        if (!Login())
+        {
+            Console.WriteLine("Demasiados intentos fallidos. Cerrando...");
+            return;
+        }
+
+        // Login con contraseña oculta (asteriscos)
+        static bool Login()
+        {
+            int intentos = 0;
+
+            while (intentos < 3)
+            {
+                Console.Clear();
+                Console.WriteLine("INICIO DE SESIÓN");
+                Console.Write("Usuario: ");
+                string usuario = Console.ReadLine();
+
+                Console.Write("Contraseña: ");
+                string contrasena = LeerContrasenaOculta();
+
+                if (usuario == USUARIO && contrasena == CONTRASENA)
+                {
+                    Console.WriteLine("\n✓ Acceso concedido.");
+                    Thread.Sleep(1000);
+                    return true;
+                }
+
+                intentos++;
+                Console.WriteLine($"\nCredenciales incorrectas. Intentos restantes: {3 - intentos}");
+                Thread.Sleep(1500);
+            }
+
+            return false;
+        }
+
         int opcion;
         do
         {
@@ -49,5 +88,6 @@ class Program
         } while (opcion != 4);
 
     }
+
 }
 
