@@ -89,6 +89,35 @@ class Program
         return false;
     }
 
+    // Lee la contraseña mostrando asteriscos
+    static string LeerContrasenaOculta()
+    {
+        string contrasena = "";
+        ConsoleKeyInfo tecla;
+
+        do
+        {
+            tecla = Console.ReadKey(true);
+
+            if (tecla.Key != ConsoleKey.Enter && tecla.Key != ConsoleKey.Backspace)
+            {
+                contrasena += tecla.KeyChar;
+                Console.Write("*");
+            }
+            else if (tecla.Key == ConsoleKey.Backspace && contrasena.Length > 0)
+            {
+                contrasena = contrasena.Substring(0, contrasena.Length - 1);
+                Console.Write("\b \b");
+            }
+
+        } while (tecla.Key != ConsoleKey.Enter);
+
+        Console.WriteLine();
+        return contrasena;
+    }
+
+    //Lógica del juego
+
     static void MostrarReglas()
     {
         Console.Clear();
