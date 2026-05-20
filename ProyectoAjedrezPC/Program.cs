@@ -19,36 +19,6 @@ class Program
             return;
         }
 
-        // Login con contraseña oculta (asteriscos)
-        static bool Login()
-        {
-            int intentos = 0;
-
-            while (intentos < 3)
-            {
-                Console.Clear();
-                Console.WriteLine("INICIO DE SESIÓN");
-                Console.Write("Usuario: ");
-                string usuario = Console.ReadLine();
-
-                Console.Write("Contraseña: ");
-                string contrasena = LeerContrasenaOculta();
-
-                if (usuario == USUARIO && contrasena == CONTRASENA)
-                {
-                    Console.WriteLine("\n✓ Acceso concedido.");
-                    Thread.Sleep(1000);
-                    return true;
-                }
-
-                intentos++;
-                Console.WriteLine($"\nCredenciales incorrectas. Intentos restantes: {3 - intentos}");
-                Thread.Sleep(1500);
-            }
-
-            return false;
-        }
-
         int opcion;
         do
         {
@@ -87,6 +57,52 @@ class Program
             }
         } while (opcion != 4);
 
+    }
+
+    // Login con contraseña oculta (asteriscos)
+    static bool Login()
+    {
+        int intentos = 0;
+
+        while (intentos < 3)
+        {
+            Console.Clear();
+            Console.WriteLine("INICIO DE SESIÓN");
+            Console.Write("Usuario: ");
+            string usuario = Console.ReadLine();
+
+            Console.Write("Contraseña: ");
+            string contrasena = LeerContrasenaOculta();
+
+            if (usuario == USUARIO && contrasena == CONTRASENA)
+            {
+                Console.WriteLine("\n✓ Acceso concedido.");
+                Thread.Sleep(1000);
+                return true;
+            }
+
+            intentos++;
+            Console.WriteLine($"\nCredenciales incorrectas. Intentos restantes: {3 - intentos}");
+            Thread.Sleep(1500);
+        }
+
+        return false;
+    }
+
+    static void MostrarReglas()
+    {
+        Console.Clear();
+        Console.WriteLine("REGLAS DEL JUEGO\n");
+        Console.WriteLine("• REY (R/r): Se mueve 1 casilla en cualquier dirección.");
+        Console.WriteLine("• TORRE (T/t): Se mueve en línea recta. No puede saltar piezas.");
+        Console.WriteLine("• SOLDADO (S/s): Avanza 1 casilla. Ataca en diagonal. No retrocede.\n");
+        Console.WriteLine("• Mayúsculas = Blancas | Minúsculas = Negras");
+        Console.WriteLine("• Si capturas el Rey rival o eliminas todas sus piezas, ganas.\n");
+        Console.WriteLine("Puntaje:");
+        Console.WriteLine("  Soldado o Torre capturada → 10 puntos");
+        Console.WriteLine("  Rey capturado → 60 puntos\n");
+        Console.WriteLine("Presiona Enter para volver...");
+        Console.ReadLine();
     }
 
 }
