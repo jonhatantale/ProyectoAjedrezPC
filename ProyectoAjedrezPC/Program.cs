@@ -18,7 +18,8 @@ class Program
             Console.WriteLine("Demasiados intentos fallidos. Cerrando...");
             return;
         }
-
+        
+        //Menú principal
         int opcion;
         do
         {
@@ -76,7 +77,7 @@ class Program
 
             if (usuario == USUARIO && contrasena == CONTRASENA)
             {
-                Console.WriteLine("\n✓ Acceso concedido.");
+                Console.WriteLine("\nAcceso concedido.");
                 Thread.Sleep(1000);
                 return true;
             }
@@ -117,6 +118,85 @@ class Program
     }
 
     //Lógica del juego
+    static void IniciarPartida()
+    {
+        Console.Clear();
+        Console.Write("Nombre Jugador 1 (Blancas): ");
+        string nombre1 = Console.ReadLine();
+        Console.Write("Nombre Jugador 2 (Negras): ");
+        string nombre2 = Console.ReadLine();
+
+        Jugador j1 = new Jugador(nombre1, "Blanco");
+        Jugador j2 = new Jugador(nombre2, "Negro");
+        Tablero tablero = new Tablero();
+        tablero.IniciarTablero(j1, j2);
+
+        Jugador turnoActual = j1;
+        string mensaje = "";
+
+        while (true)
+        {
+            Console.Clear();
+            tablero.Mostrar();
+            Console.WriteLine($"Turno de: {turnoActual.nombre} ({turnoActual.color})");
+            Console.WriteLine($"Puntaje: {turnoActual.puntaje}");
+
+            if (mensaje != "")
+            {
+                Console.WriteLine(mensaje);
+                mensaje = "";
+            }
+
+            // Pedir movimiento
+            Console.Write("Origen (ej. A1): ");
+            string origen = Console.ReadLine().ToUpper().Trim();
+            Console.Write("Destino (ej. A2): ");
+            string destino = Console.ReadLine().ToUpper().Trim();
+
+            // Parsear coordenadas
+            if (!tablero.ParsearCasilla(origen, out int filaO, out int colO) ||
+                !tablero.ParsearCasilla(destino, out int filaD, out int colD))
+            {
+                mensaje = "Coordenadas inválidas. Usa formato letra + número (ej. B4)";
+                continue;
+            }
+
+            // Intentar mover
+            Pieza capturada = tablero.MoverPieza(filaO, colO, filaD, colD, turnoActual.color);
+
+            if (capturada == null && tablero.ObtenerPieza(filaD, colD) == null
+                && tablero.ObtenerPieza(filaO, colO) != null)
+            {
+                mensaje = "Movimiento inválido para esa pieza.";
+                continue;
+            }
+
+            // Hubo captura
+            if (capturada != null)
+            {
+                turnoActual.SumarPuntos(capturada);
+                mensaje = $"¡{turnoActual.nombre} capturó una pieza! +{(capturada is Rey ? 60 : 10)} puntos";
+
+                // Verificar victoria
+                if (capturada is Rey || !tablero.TienePiezas(capturada.Color))
+                {
+                    Console.Clear();
+                    tablero.Mostrar();
+                    Console.WriteLine($"\n¡{turnoActual.nombre} GANÓ la partida!");
+                    Console.WriteLine($"Puntaje final: {turnoActual.puntaje}");
+                    record.ActRecord(turnoActual.nombre, turnoActual.puntaje);
+                    Console.WriteLine("\nPresiona Enter para volver al menú...");
+                    Console.ReadLine();
+                    return;
+                }
+            }
+
+            // Cambiar turno
+            turnoActual = (turnoActual == j1) ? j2 : j1;
+        }
+    }
+
+
 
     static void MostrarReglas()
     {
