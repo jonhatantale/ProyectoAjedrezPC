@@ -1,0 +1,31 @@
+Juego de Estrategia en Tablero
+
+Proyecto de la clase de Pensamiento Computacional, Universidad Rafael Landívar Campus Quetzaltenango.
+Es un juego por turnos en consola hecho en C#. Dos jugadores se turnan moviendo piezas en un tablero de 8x8 hasta que uno capture el Rey del otro o elimine todas sus piezas.
+
+Cómo ejecutarlo
+1. Clona el repo y abre el `.sln` en Visual Studio 2022
+2. Presiona F5
+3. Ingresa con usuario `admin` y contraseña `Juego@2025`
+
+Archivos del proyecto
+- `Program.cs` — login, menú y loop del juego
+- `Tablero.cs` — la matriz 8x8 y toda la lógica de movimiento
+- `Pieza.cs` — clase base abstracta
+- `Rey.cs`, `Torre.cs`, `Soldado.cs` — cada pieza con sus reglas
+- `Jugador.cs` — nombre, color y puntaje
+- `Puntaje.cs` — guarda el récord más alto
+
+Piezas
+- Rey (R/r)— se mueve 1 casilla en cualquier dirección
+- Torre (T/t) — se mueve en línea recta, no puede saltar piezas
+- Soldado (S/s) — avanza 1 hacia adelante, ataca en diagonal
+
+Mayúsculas son blancas, minúsculas son negras.
+
+Puntaje
+
+- Soldado o Torre capturada → 10 puntos
+- Rey capturado → 60 puntos
+
+Hecho por Jonhatan Talé de León
