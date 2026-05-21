@@ -148,8 +148,18 @@ class Program
             }
 
             // Pedir movimiento
-            Console.Write("Origen (ej. A1): ");
+            Console.Write("Origen (ej. A1) o SALIR: ");
             string origen = Console.ReadLine().ToUpper().Trim();
+
+            
+            // Salir de la partida
+            if (origen == "SALIR")
+            {
+                Console.WriteLine("\nPartida abandonada. Volviendo al menú...");
+                Thread.Sleep(1500);
+                return;
+            }
+
             Console.Write("Destino (ej. A2): ");
             string destino = Console.ReadLine().ToUpper().Trim();
 
