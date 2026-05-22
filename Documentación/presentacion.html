@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Estrategia en Tablero — Presentación</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111;
+  --oro: #d4a843;
+  --oro2: #f0c860;
+  --azul: #3a7bd5;
+  --blanco: #f0ece0;
+  --gris: #888;
+  --gris2: #222;
+  --verde: #4caf7d;
+  --rojo: #e05252;
+}
+
+body {
+  background: var(--bg);
+  color: var(--blanco);
+  font-family: 'DM Sans', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  cursor: none;
+}
+
+/* CURSOR */
+.cursor {
+  width: 8px; height: 8px;
+  background: var(--oro);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s;
+  mix-blend-mode: difference;
+}
+
+/* SLIDES */
+.slides { width: 100%; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 80px;
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.slide.exit {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+/* FONDO TABLERO */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-cell { border: 1px solid var(--oro); }
+.bg-cell.dark { background: var(--oro); opacity: 0.5; }
+
+/* NAV */
+nav {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50px;
+  padding: 12px 24px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--gris);
+  font-size: 18px;
+  cursor: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  transition: all 0.2s;
+  font-family: 'Space Mono', monospace;
+}
+
+.nav-btn:hover { color: var(--oro); background: rgba(212,168,67,0.1); }
+
+.slide-counter {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--gris);
+  min-width: 60px;
+  text-align: center;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #333;
+  cursor: none;
+  transition: all 0.3s;
+}
+
+.dot.active { background: var(--oro); transform: scale(1.4); }
+
+/* SLIDE LABEL */
+.slide-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--oro);
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+/* TIPOGRAFÍA */
+.titulo-grande {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 9vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: 2px;
+  color: var(--blanco);
+}
+
+.titulo-grande span { color: var(--oro); }
+
+h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  letter-spacing: 2px;
+  color: var(--blanco);
+  margin-bottom: 32px;
+}
+
+h2 span { color: var(--oro); }
+
+p.desc {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  line-height: 1.8;
+  max-width: 600px;
+}
+
+/* CARD */
+.card {
+  background: var(--gris2);
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--oro);
+}
+
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 900px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; max-width: 900px; }
+
+/* TABLERO DEMO */
+.tablero-wrapper {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(10px, 1.5vw, 15px);
+  line-height: 1.8;
+  background: #0d0d0d;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.pieza-b { color: var(--oro); font-weight: 700; }
+.pieza-n { color: var(--azul); font-weight: 700; }
+.vacia { color: #2a2a2a; }
+.coord { color: #444; }
+
+/* CÓDIGO */
+.codigo {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  background: #0d0d0d;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 20px 24px;
+  line-height: 1.9;
+  width: 100%;
+}
+
+.kw { color: #569cd6; }
+.str { color: #ce9178; }
+.com { color: #555; }
+.cls { color: var(--oro); }
+.num { color: #b5cea8; }
+
+/* BADGE */
+.badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.badge-oro { background: #d4a84322; color: var(--oro); border: 1px solid #d4a84344; }
+.badge-azul { background: #3a7bd522; color: var(--azul); border: 1px solid #3a7bd544; }
+.badge-verde { background: #4caf7d22; color: var(--verde); border: 1px solid #4caf7d44; }
+
+/* PIEZA CARD */
+.pieza-card {
+  background: #0f0f0f;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.pieza-card:hover { border-color: #d4a84355; transform: translateY(-4px); }
+
+.pieza-sym {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  color: var(--oro);
+  margin-bottom: 8px;
+}
+
+.pieza-nombre {
+  font-weight: 600;
+  color: var(--blanco);
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.pieza-regla { font-size: 13px; color: #666; line-height: 1.6; }
+
+/* PUNTOS */
+.puntos-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.puntos-row:last-child { border-bottom: none; }
+.puntos-label { color: #888; font-size: 15px; }
+.puntos-val { font-family: 'Space Mono', monospace; color: var(--oro); font-size: 18px; font-weight: 700; }
+
+/* FLUJO */
+.flujo {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 900px;
+}
+
+.flujo-paso {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 14px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+  min-width: 110px;
+  transition: border-color 0.3s;
+}
+
+.flujo-paso:hover { border-color: var(--oro); color: var(--blanco); }
+.flujo-paso strong { display: block; color: var(--blanco); font-size: 11px; margin-bottom: 4px; font-family: 'Space Mono', monospace; }
+.flujo-arrow { color: #333; font-size: 18px; padding: 0 4px; }
+
+/* SLIDE 1 — PORTADA */
+#s1 { text-align: center; }
+#s1 .sub {
+  font-size: 14px;
+  color: #555;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 24px;
+  font-family: 'Space Mono', monospace;
+}
+#s1 .autor {
+  margin-top: 48px;
+  font-size: 15px;
+  color: #666;
+}
+#s1 .autor strong { color: var(--oro); }
+
+.piezas-deco {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  letter-spacing: 16px;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+  animation: pulso 3s ease-in-out infinite;
+}
+
+@keyframes pulso {
+  0%, 100% { color: #1a1a1a; }
+  50% { color: #2a2218; }
+}
+
+/* PROGRESS BAR */
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--oro);
+  transition: width 0.4s ease;
+  z-index: 200;
+}
+
+/* SKIP MENU */
+.skip-menu {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.skip-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  color: #555;
+  cursor: none;
+  transition: all 0.2s;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+.skip-btn:hover { color: var(--oro); border-color: rgba(212,168,67,0.3); }
+
+/* HINT */
+.hint {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #333;
+  letter-spacing: 1px;
+}
+
+/* ANIMACIONES ENTRADA */
+.slide.active .card,
+.slide.active .pieza-card,
+.slide.active .flujo-paso {
+  animation: fadeUp 0.5s ease both;
+}
+
+.slide.active .card:nth-child(2) { animation-delay: 0.1s; }
+.slide.active .card:nth-child(3) { animation-delay: 0.2s; }
+.slide.active .pieza-card:nth-child(2) { animation-delay: 0.1s; }
+.slide.active .pieza-card:nth-child(3) { animation-delay: 0.2s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* LAYOUT HELPERS */
+.w-full { width: 100%; }
+.max-900 { max-width: 900px; width: 100%; }
+.flex-col { display: flex; flex-direction: column; gap: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.row { display: flex; gap: 24px; align-items: flex-start; width: 100%; max-width: 900px; }
+.col { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+/* DIAGRAMA MINI */
+.clase-box {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+}
+
+.clase-box .cls-name { color: var(--oro); font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+.clase-box .cls-method { color: #555; font-size: 10px; line-height: 1.8; }
+.clase-arrow { text-align: center; color: #333; font-size: 16px; margin: 4px 0; }
+
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="progress" id="progress"></div>
+
+<div class="hint">← → FLECHAS · ESC MENÚ</div>
+
+<!-- SKIP MENU -->
+<div class="skip-menu">
+  <button class="skip-btn" onclick="goTo(0)">Inicio</button>
+  <button class="skip-btn" onclick="goTo(1)">Problema</button>
+  <button class="skip-btn" onclick="goTo(2)">Solución</button>
+  <button class="skip-btn" onclick="goTo(3)">Tablero</button>
+  <button class="skip-btn" onclick="goTo(4)">Piezas</button>
+  <button class="skip-btn" onclick="goTo(5)">Código</button>
+  <button class="skip-btn" onclick="goTo(6)">Flujo</button>
+  <button class="skip-btn" onclick="goTo(7)">Puntaje</button>
+  <button class="skip-btn" onclick="goTo(8)">GitHub</button>
+  <button class="skip-btn" onclick="goTo(9)">Cierre</button>
+</div>
+
+<!-- FONDO -->
+<div class="bg-grid" id="bgGrid"></div>
+
+<!-- SLIDES -->
+<div class="slides">
+
+  <!-- 1. PORTADA -->
+  <div class="slide active" id="s1">
+    <div class="piezas-deco">♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜</div>
+    <div class="titulo-grande">JUEGO DE<br><span>ESTRATEGIA</span><br>EN TABLERO</div>
+    <p class="sub">Pensamiento Computacional · URL Quetzaltenango · 2026</p>
+    <p class="autor" style="margin-top:32px">Presentado por <strong>Jonhatan Talé de León</strong></p>
+  </div>
+
+  <!-- 2. EL PROBLEMA -->
+  <div class="slide" id="s2">
+    <div class="slide-label">01 — El proyecto</div>
+    <h2>¿Qué nos <span>pidieron</span>?</h2>
+    <div class="grid-2" style="max-width:860px">
+      <div class="card">
+        <p style="font-size:13px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">OBJETIVO</p>
+        <p class="desc" style="font-size:15px">Desarrollar un juego de estrategia por turnos en consola usando matrices, POO y validaciones completas.</p>
+      </div>
+      <div class="card">
+        <p style="font-size:13px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">REQUISITOS CLAVE</p>
+        <p class="desc" style="font-size:14px;line-height:2">
+          ♟ Tablero 8×8 con matriz<br>
+          🔐 Login con contraseña segura<br>
+          🎮 3 tipos de piezas con reglas<br>
+          🏆 Sistema de puntaje y récord<br>
+          📁 GitHub con commits progresivos
+        </p>
+      </div>
+      <div class="card">
+        <p style="font-size:13px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">PIEZAS POR JUGADOR</p>
+        <p class="desc" style="font-size:22px;letter-spacing:8px;font-family:'Space Mono',monospace">
+          <span style="color:var(--oro)">1R + 2T + 4S</span>
+        </p>
+        <p class="desc" style="font-size:13px;margin-top:8px">Rey · Torre · Soldado</p>
+      </div>
+      <div class="card">
+        <p style="font-size:13px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">ENTREGABLES</p>
+        <p class="desc" style="font-size:14px;line-height:2">
+          ✓ Código funcional en C#<br>
+          ✓ Repositorio GitHub<br>
+          ✓ Manual de usuario<br>
+          ✓ Documento técnico<br>
+          ✓ Diagramas de flujo y clases
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. LA SOLUCIÓN -->
+  <div class="slide" id="s3">
+    <div class="slide-label">02 — Arquitectura</div>
+    <h2>Cómo está <span>estructurado</span></h2>
+    <div class="row">
+      <div class="col">
+        <div class="clase-box">
+          <div class="cls-name">Program.cs</div>
+          <div class="cls-method">Login · Menú · Loop del juego</div>
+        </div>
+        <div class="clase-arrow">↓</div>
+        <div class="clase-box">
+          <div class="cls-name">Tablero.cs</div>
+          <div class="cls-method">Matriz[8,8] · Mover · Validar · Mostrar</div>
+        </div>
+        <div class="clase-arrow">↓</div>
+        <div class="clase-box" style="border-color:#d4a84344">
+          <div class="cls-name" style="color:#888">Pieza.cs <span style="font-size:10px;color:#555">(abstracta)</span></div>
+          <div class="cls-method">Color · Fila · Columna · MovimientoValido()</div>
+        </div>
+        <div class="clase-arrow">↓</div>
+        <div style="display:flex;gap:8px">
+          <div class="clase-box" style="flex:1;border-color:#4caf7d44">
+            <div class="cls-name" style="color:var(--verde);font-size:11px">Rey.cs</div>
+          </div>
+          <div class="clase-box" style="flex:1;border-color:#4caf7d44">
+            <div class="cls-name" style="color:var(--verde);font-size:11px">Torre.cs</div>
+          </div>
+          <div class="clase-box" style="flex:1;border-color:#4caf7d44">
+            <div class="cls-name" style="color:var(--verde);font-size:11px">Soldado.cs</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="clase-box">
+          <div class="cls-name">Jugador.cs</div>
+          <div class="cls-method">Nombre · Color · Puntaje · SumarPuntos()</div>
+        </div>
+        <div class="clase-box">
+          <div class="cls-name">Puntaje.cs</div>
+          <div class="cls-method">Récord · ActualizarRecord() · MostrarRecord()</div>
+        </div>
+        <div class="card" style="margin-top:8px">
+          <p style="font-size:12px;color:#555;margin-bottom:10px;font-family:'Space Mono',monospace">TECNOLOGÍAS</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge badge-azul">C# 12</span>
+            <span class="badge badge-oro">.NET 10</span>
+            <span class="badge badge-verde">VS 2022</span>
+            <span class="badge badge-azul">GitHub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. TABLERO -->
+  <div class="slide" id="s4">
+    <div class="slide-label">03 — El tablero</div>
+    <h2>La <span>matriz</span> 8×8</h2>
+    <div class="row" style="align-items:center">
+      <div class="tablero-wrapper">
+<pre>
+    A   B   C   D   E   F   G   H
+  +---+---+---+---+---+---+---+---+
+8 | <span class="pieza-n">t</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-n">r</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-n">t</span> | 8
+  +---+---+---+---+---+---+---+---+
+7 | <span class="vacia">.</span> | <span class="pieza-n">s</span> | <span class="pieza-n">s</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-n">s</span> | <span class="pieza-n">s</span> | <span class="vacia">.</span> | 7
+  +---+---+---+---+---+---+---+---+
+6 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 6
+  +---+---+---+---+---+---+---+---+
+5 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 5
+  +---+---+---+---+---+---+---+---+
+4 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 4
+  +---+---+---+---+---+---+---+---+
+3 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 3
+  +---+---+---+---+---+---+---+---+
+2 | <span class="vacia">.</span> | <span class="pieza-b">S</span> | <span class="pieza-b">S</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-b">S</span> | <span class="pieza-b">S</span> | <span class="vacia">.</span> | 2
+  +---+---+---+---+---+---+---+---+
+1 | <span class="pieza-b">T</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-b">R</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-b">T</span> | 1
+  +---+---+---+---+---+---+---+---+
+    A   B   C   D   E   F   G   H
+</pre>
+      </div>
+      <div class="col">
+        <div class="card">
+          <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">CÓMO SE INGRESA</p>
+          <p class="desc" style="font-size:14px">El jugador escribe coordenadas tipo <span style="color:var(--oro);font-family:'Space Mono',monospace">B4</span> para origen y destino.</p>
+        </div>
+        <div class="card">
+          <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">PARSEO</p>
+          <div class="codigo" style="font-size:11px">
+            <span class="com">// "B4" → fila 4, col 1</span><br>
+            col = letra - <span class="str">'A'</span>;<br>
+            fila = <span class="num">8</span> - numero;
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size:12px;color:#555;margin-bottom:8px;font-family:'Space Mono',monospace">LEYENDA</p>
+          <p style="font-size:13px;line-height:2;color:#666">
+            <span style="color:var(--oro)">Mayúsculas</span> = Blancas<br>
+            <span style="color:var(--azul)">Minúsculas</span> = Negras<br>
+            <span style="color:#2a2a2a;background:#2a2a2a;border-radius:2px">.</span><span style="color:#444"> . = Casilla vacía</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PIEZAS -->
+  <div class="slide" id="s5">
+    <div class="slide-label">04 — Las piezas</div>
+    <h2>Reglas de <span>movimiento</span></h2>
+    <div class="grid-3">
+      <div class="pieza-card">
+        <div class="pieza-sym">R</div>
+        <div class="pieza-nombre">Rey</div>
+        <div class="pieza-regla">1 casilla en cualquier dirección: horizontal, vertical o diagonal. La pieza más importante.</div>
+        <div style="margin-top:12px">
+          <span class="badge badge-oro">1 por jugador</span>
+        </div>
+      </div>
+      <div class="pieza-card">
+        <div class="pieza-sym">T</div>
+        <div class="pieza-nombre">Torre</div>
+        <div class="pieza-regla">Se mueve en línea recta cualquier número de casillas. No puede saltar otras piezas.</div>
+        <div style="margin-top:12px">
+          <span class="badge badge-azul">2 por jugador</span>
+        </div>
+      </div>
+      <div class="pieza-card">
+        <div class="pieza-sym">S</div>
+        <div class="pieza-nombre">Soldado</div>
+        <div class="pieza-regla">Avanza 1 casilla hacia adelante. Ataca en diagonal. No puede retroceder.</div>
+        <div style="margin-top:12px">
+          <span class="badge badge-verde">4 por jugador</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px;max-width:900px;width:100%">
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">POLIMORFISMO EN ACCIÓN</p>
+        <div class="codigo">
+          <span class="com">// Tablero llama al método sin saber qué tipo de pieza es</span><br>
+          <span class="kw">if</span> (pieza.<span class="cls">MovimientoValido</span>(filaD, colD, matriz))<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;EjecutarMovimiento(); <span class="com">// cada clase implementa sus propias reglas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. CÓDIGO CLAVE -->
+  <div class="slide" id="s6">
+    <div class="slide-label">05 — Código relevante</div>
+    <h2>Decisiones <span>técnicas</span></h2>
+    <div class="grid-2" style="max-width:900px">
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">LOGIN SEGURO</p>
+        <div class="codigo" style="font-size:11px">
+          <span class="com">// Credenciales como const</span><br>
+          <span class="kw">const string</span> USUARIO = <span class="str">"admin"</span>;<br>
+          <span class="kw">const string</span> PASS = <span class="str">"Juego@2025"</span>;<br><br>
+          <span class="com">// Contraseña con asteriscos</span><br>
+          tecla = Console.<span class="cls">ReadKey</span>(<span class="kw">true</span>);<br>
+          Console.<span class="cls">Write</span>(<span class="str">"*"</span>);
+        </div>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">HERENCIA Y ABSTRACCIÓN</p>
+        <div class="codigo" style="font-size:11px">
+          <span class="kw">abstract class</span> <span class="cls">Pieza</span> {<br>
+          &nbsp;&nbsp;<span class="kw">public abstract bool</span> <span class="cls">MovimientoValido</span>(...)<br>
+          }<br><br>
+          <span class="kw">class</span> <span class="cls">Rey</span> : <span class="cls">Pieza</span> {<br>
+          &nbsp;&nbsp;<span class="kw">public override bool</span> <span class="cls">MovimientoValido</span>(...)<br>
+          &nbsp;&nbsp;{ <span class="kw">return</span> difFila &lt;= <span class="num">1</span> && difCol &lt;= <span class="num">1</span>; }<br>
+          }
+        </div>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">TABLERO ESTÁTICO</p>
+        <div class="codigo" style="font-size:11px">
+          <span class="com">// Se limpia y redibuja cada turno</span><br>
+          Console.<span class="cls">Clear</span>();<br>
+          tablero.<span class="cls">Mostrar</span>();<br><br>
+          <span class="com">// Da efecto de tablero "fijo"</span>
+        </div>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">SALIR DE PARTIDA</p>
+        <div class="codigo" style="font-size:11px">
+          <span class="com">// El jugador puede escribir SALIR</span><br>
+          <span class="kw">if</span> (origen == <span class="str">"SALIR"</span>)<br>
+          {<br>
+          &nbsp;&nbsp;Console.<span class="cls">WriteLine</span>(<span class="str">"Partida abandonada."</span>);<br>
+          &nbsp;&nbsp;<span class="kw">return</span>;<br>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. FLUJO -->
+  <div class="slide" id="s7">
+    <div class="slide-label">06 — Flujo del juego</div>
+    <h2>Cómo funciona <span>por dentro</span></h2>
+    <div class="flex-col" style="width:100%;max-width:900px;gap:12px">
+      <div class="flujo">
+        <div class="flujo-paso"><strong>INICIO</strong>Login</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>MENÚ</strong>4 opciones</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>PARTIDA</strong>Nombres</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>TABLERO</strong>Mostrar</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>TURNO</strong>Indicar</div>
+      </div>
+      <div style="text-align:center;color:#333;font-size:20px">↓</div>
+      <div class="flujo">
+        <div class="flujo-paso"><strong>PEDIR</strong>Origen/Destino</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>VALIDAR</strong>Coordenadas</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>VALIDAR</strong>Movimiento</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>EJECUTAR</strong>Mover pieza</div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-paso"><strong>CAPTURA</strong>¿Hay rival?</div>
+      </div>
+      <div style="text-align:center;color:#333;font-size:20px">↓</div>
+      <div class="flujo">
+        <div class="flujo-paso" style="border-color:#d4a84344"><strong>¿VICTORIA?</strong>Rey o sin piezas</div>
+        <div class="flujo-arrow">→ Sí →</div>
+        <div class="flujo-paso" style="border-color:#4caf7d44"><strong>GANADOR</strong>Guardar récord</div>
+        <div class="flujo-arrow" style="color:#555">→ No →</div>
+        <div class="flujo-paso"><strong>TURNO</strong>Cambiar jugador</div>
+        <div class="flujo-arrow" style="color:#333">↩ loop</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;max-width:900px;width:100%">
+      <div class="card" style="display:flex;gap:16px;align-items:center">
+        <span style="color:var(--rojo);font-size:24px">✗</span>
+        <p style="font-size:13px;color:#666">Si la coordenada es inválida o el movimiento no es permitido, el sistema rechaza la acción y pide nuevamente — sin perder el turno.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. PUNTAJE -->
+  <div class="slide" id="s8">
+    <div class="slide-label">07 — Puntaje</div>
+    <h2>Sistema de <span>puntuación</span></h2>
+    <div class="row" style="align-items:flex-start">
+      <div class="card" style="flex:1">
+        <p style="font-size:12px;color:#555;margin-bottom:16px;font-family:'Space Mono',monospace">TABLA DE PUNTOS</p>
+        <div class="puntos-row">
+          <span class="puntos-label">Soldado capturado</span>
+          <span class="puntos-val">+10</span>
+        </div>
+        <div class="puntos-row">
+          <span class="puntos-label">Torre capturada</span>
+          <span class="puntos-val">+10</span>
+        </div>
+        <div class="puntos-row" style="border-color:var(--oro);padding-top:16px">
+          <span class="puntos-label" style="color:var(--blanco);font-weight:600">Rey capturado</span>
+          <span class="puntos-val" style="font-size:24px">+60</span>
+        </div>
+        <p style="font-size:11px;color:#444;margin-top:12px;font-family:'Space Mono',monospace">10 base + 50 adicionales</p>
+      </div>
+      <div class="col" style="flex:1">
+        <div class="card">
+          <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">CÓMO SE CALCULA</p>
+          <div class="codigo" style="font-size:11px">
+            <span class="kw">public void</span> <span class="cls">SumarPuntos</span>(<span class="cls">Pieza</span> p) {<br>
+            &nbsp;&nbsp;Puntaje += <span class="num">10</span>;<br>
+            &nbsp;&nbsp;<span class="kw">if</span> (p <span class="kw">is</span> <span class="cls">Rey</span>)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Puntaje += <span class="num">50</span>;<br>
+            }
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">RÉCORD</p>
+          <p class="desc" style="font-size:14px">Al terminar la partida el puntaje se compara con el récord. Solo se actualiza si es mayor. Si son iguales, se mantiene el primero.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. GITHUB -->
+  <div class="slide" id="s9">
+    <div class="slide-label">08 — GitHub</div>
+    <h2>Control de <span>versiones</span></h2>
+    <div class="grid-2" style="max-width:860px">
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">FLUJO DE TRABAJO</p>
+        <p class="desc" style="font-size:14px;line-height:2.2">
+          <span style="color:var(--oro);font-family:'Space Mono',monospace">master</span> → rama principal, código final<br>
+          <span style="color:var(--azul);font-family:'Space Mono',monospace">rama-jonh</span> → desarrollo personal<br>
+          <span style="font-family:'Space Mono',monospace;color:#555">Pull Request</span> → mezcla al master
+        </p>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">REGLA DE ORO</p>
+        <div class="codigo" style="font-size:12px">
+          <span class="com"># Orden correcto siempre:</span><br>
+          git pull   <span class="com"># bajar cambios</span><br>
+          <span class="com"># ... programar ...</span><br>
+          git add .<br>
+          git commit -m <span class="str">"mensaje"</span><br>
+          git push   <span class="com"># subir cambios</span>
+        </div>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">EVIDENCIA DE TRABAJO</p>
+        <p class="desc" style="font-size:14px">Commits progresivos que muestran el avance semana a semana, desde las clases vacías hasta el proyecto funcional.</p>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;color:#555;margin-bottom:12px;font-family:'Space Mono',monospace">DOCUMENTACIÓN EN EL REPO</p>
+        <p class="desc" style="font-size:14px;line-height:2">
+          📄 README.md<br>
+          📁 /docs con manual, doc técnico y diagramas
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. CIERRE -->
+  <div class="slide" id="s10">
+    <div class="slide-label">09 — Cierre</div>
+    <h2>Lo que <span>aprendí</span></h2>
+    <div class="grid-3" style="margin-bottom:32px">
+      <div class="card" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">🧩</div>
+        <p style="color:var(--blanco);font-weight:600;margin-bottom:8px">POO en la práctica</p>
+        <p class="desc" style="font-size:13px">Herencia, abstracción y polimorfismo aplicados a un problema real con lógica de negocio.</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">🔀</div>
+        <p style="color:var(--blanco);font-weight:600;margin-bottom:8px">Trabajo colaborativo</p>
+        <p class="desc" style="font-size:13px">Git, ramas, pull requests y la importancia de no trabajar en el mismo archivo.</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">✅</div>
+        <p style="color:var(--blanco);font-weight:600;margin-bottom:8px">Validaciones</p>
+        <p class="desc" style="font-size:13px">Un programa robusto no solo funciona en los casos felices, también maneja errores correctamente.</p>
+      </div>
+    </div>
+    <div class="titulo-grande" style="font-size:clamp(3rem,7vw,7rem);text-align:center">
+      GRACIAS <span>♟</span>
+    </div>
+    <p style="color:#555;font-family:'Space Mono',monospace;font-size:12px;margin-top:16px;text-align:center">Jonhatan Talé de León · URL Quetzaltenango · 2026</p>
+  </div>
+
+</div>
+
+<!-- NAVEGACIÓN -->
+<nav>
+  <button class="nav-btn" onclick="prev()">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="counter">1 / 10</span>
+  <button class="nav-btn" onclick="next()">→</button>
+</nav>
+
+<script>
+  const total = 10;
+  let current = 0;
+
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX - 4 + 'px';
+    cursor.style.top = e.clientY - 4 + 'px';
+  });
+
+  // FONDO
+  const bg = document.getElementById('bgGrid');
+  for (let i = 0; i < 144; i++) {
+    const c = document.createElement('div');
+    c.className = 'bg-cell' + ((Math.floor(i/16) + i) % 2 === 0 ? ' dark' : '');
+    bg.appendChild(c);
+  }
+
+  // DOTS
+  const dotsEl = document.getElementById('dots');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    const slides = document.querySelectorAll('.slide');
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 500);
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  function next() { if (current < total - 1) goTo(current + 1); }
+  function prev() { if (current > 0) goTo(current - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key >= '1' && e.key <= '9') goTo(parseInt(e.key) - 1);
+    if (e.key === '0') goTo(9);
+  });
+</script>
+</body>
+</html>
