@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Usuario — Juego de Estrategia en Tablero</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --negro: #0e0e0e;
+    --blanco: #f5f2eb;
+    --acento: #c8a84b;
+    --acento2: #4b7fc8;
+    --gris: #2a2a2a;
+    --gris2: #3d3d3d;
+    --texto: #d4d0c8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--negro);
+    color: var(--texto);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  /* PORTADA */
+  .portada {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 40px;
+    position: relative;
+    border-bottom: 1px solid #222;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(200,168,75,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, rgba(75,127,200,0.06) 0%, transparent 60%);
+  }
+
+  .tablero-deco {
+    display: grid;
+    grid-template-columns: repeat(8, 28px);
+    grid-template-rows: repeat(8, 28px);
+    gap: 2px;
+    margin-bottom: 48px;
+    opacity: 0.5;
+    animation: fadeIn 1s ease;
+  }
+
+  .celda {
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
+  }
+
+  .celda.clara { background: #2a2a2a; }
+  .celda.oscura { background: #c8a84b22; border: 1px solid #c8a84b44; }
+
+  .portada h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--blanco);
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+    animation: slideUp 0.8s ease 0.2s both;
+  }
+
+  .portada h1 span { color: var(--acento); }
+
+  .portada p.subtitulo {
+    font-size: 1rem;
+    color: #888;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    animation: slideUp 0.8s ease 0.4s both;
+  }
+
+  .badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: slideUp 0.8s ease 0.6s both;
+  }
+
+  .badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .badge-oro { background: #c8a84b22; color: var(--acento); border: 1px solid #c8a84b44; }
+  .badge-azul { background: #4b7fc822; color: var(--acento2); border: 1px solid #4b7fc844; }
+  .badge-gris { background: #ffffff11; color: #888; border: 1px solid #ffffff22; }
+
+  /* NAVEGACIÓN */
+  nav {
+    position: sticky;
+    top: 0;
+    background: rgba(14,14,14,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #222;
+    padding: 0 40px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 54px;
+    overflow-x: auto;
+  }
+
+  nav a {
+    color: #666;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--acento); }
+
+  /* CONTENIDO */
+  .contenido {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 80px 40px;
+  }
+
+  section { margin-bottom: 80px; }
+
+  .sec-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--acento);
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--blanco);
+    margin-bottom: 28px;
+    letter-spacing: -0.5px;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--blanco);
+    margin-bottom: 12px;
+    margin-top: 32px;
+  }
+
+  p { color: #a0a0a0; margin-bottom: 16px; }
+
+  /* CARD */
+  .card {
+    background: var(--gris);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--acento);
+    margin-bottom: 16px;
+  }
+
+  /* PASOS */
+  .pasos { display: flex; flex-direction: column; gap: 16px; }
+
+  .paso {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .paso-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #c8a84b22;
+    border: 1px solid #c8a84b44;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--acento);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .paso-texto strong {
+    display: block;
+    color: var(--blanco);
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .paso-texto span { color: #888; font-size: 14px; }
+
+  /* CÓDIGO */
+  .codigo {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #c8a84b;
+    margin: 16px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .codigo .comentario { color: #555; }
+  .codigo .normal { color: #888; }
+
+  /* TABLERO */
+  .tablero-demo {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #888;
+  }
+
+  .tablero-demo .coord { color: #555; }
+  .tablero-demo .pieza-b { color: #c8a84b; font-weight: 700; }
+  .tablero-demo .pieza-n { color: #4b7fc8; font-weight: 700; }
+  .tablero-demo .vacia { color: #333; }
+
+  /* PIEZAS GRID */
+  .piezas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .pieza-card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .pieza-card:hover { border-color: #c8a84b44; }
+
+  .pieza-simbolo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--acento);
+    margin-bottom: 8px;
+  }
+
+  .pieza-nombre {
+    font-weight: 700;
+    color: var(--blanco);
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .pieza-desc { font-size: 13px; color: #666; line-height: 1.6; }
+
+  /* FOTO PLACEHOLDER */
+  .foto-placeholder {
+    background: #141414;
+    border: 2px dashed #2a2a2a;
+    border-radius: 12px;
+    padding: 60px 40px;
+    text-align: center;
+    margin: 20px 0;
+    color: #444;
+  }
+
+  .foto-placeholder .icono { font-size: 40px; margin-bottom: 12px; }
+  .foto-placeholder p { color: #444; font-size: 13px; margin: 0; }
+
+  /* TABLA */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+
+  th {
+    background: #1a1a1a;
+    color: var(--acento);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #1a1a1a;
+    color: #888;
+    font-size: 14px;
+  }
+
+  tr:hover td { background: #141414; }
+
+  /* ALERTA */
+  .alerta {
+    display: flex;
+    gap: 16px;
+    background: #1a1510;
+    border: 1px solid #c8a84b33;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+
+  .alerta-icono { font-size: 20px; flex-shrink: 0; }
+  .alerta-texto { color: #a0956a; font-size: 14px; }
+  .alerta-texto strong { color: var(--acento); display: block; margin-bottom: 4px; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #222, transparent);
+    margin: 60px 0;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid #1a1a1a;
+    padding: 40px;
+    text-align: center;
+    color: #444;
+    font-size: 13px;
+  }
+
+  /* ANIMACIONES */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<section class="portada">
+  <div class="tablero-deco" id="tablero-deco"></div>
+  <h1>Juego de <span>Estrategia</span><br>en Tablero</h1>
+  <p class="subtitulo">Manual de Usuario — Versión 1.0</p>
+  <div class="badges">
+    <span class="badge badge-oro">Pensamiento Computacional</span>
+    <span class="badge badge-azul">URL Campus Quetzaltenango</span>
+    <span class="badge badge-gris">Facultad de Ingeniería</span>
+  </div>
+</section>
+
+<!-- NAVEGACIÓN -->
+<nav>
+  <a href="#introduccion">Introducción</a>
+  <a href="#inicio">Inicio de sesión</a>
+  <a href="#menu">Menú</a>
+  <a href="#tablero">El tablero</a>
+  <a href="#piezas">Piezas</a>
+  <a href="#movimiento">Movimiento</a>
+  <a href="#puntaje">Puntaje</a>
+  <a href="#errores">Errores</a>
+</nav>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+
+  <!-- INTRODUCCIÓN -->
+  <section id="introduccion">
+    <div class="sec-label">01 — Introducción</div>
+    <h2>¿Qué es el juego?</h2>
+    <p>El Juego de Estrategia en Tablero es un juego de turnos para dos jugadores desarrollado en consola. Se juega sobre una matriz de 8×8 casillas utilizando tres tipos de piezas: Rey, Torre y Soldado.</p>
+    <p>El objetivo es capturar el Rey del oponente o eliminar todas sus piezas antes de que él haga lo mismo contigo.</p>
+
+    <div class="card">
+      <div class="card-titulo">Requisitos del sistema</div>
+      <table>
+        <tr><th>Componente</th><th>Requerimiento</th></tr>
+        <tr><td>Sistema operativo</td><td>Windows 10 / 11</td></tr>
+        <tr><td>Framework</td><td>.NET 10.0 o superior</td></tr>
+        <tr><td>Consola</td><td>Windows Terminal o CMD</td></tr>
+        <tr><td>Memoria RAM</td><td>Mínimo 512 MB disponibles</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- INICIO DE SESIÓN -->
+  <section id="inicio">
+    <div class="sec-label">02 — Inicio de sesión</div>
+    <h2>Acceso al sistema</h2>
+    <p>Antes de ingresar al menú, el sistema solicita credenciales de acceso. Estas están definidas dentro del programa.</p>
+
+    <div class="foto-placeholder">
+      <img src="Login.png" style="width:100%; border-radius:12px; margin:5px 0;">
+    </div>
+
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-texto">
+          <strong>Ingresa el usuario</strong>
+          <span>Escribe el nombre de usuario y presiona Enter.</span>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-texto">
+          <strong>Ingresa la contraseña</strong>
+          <span>La contraseña se muestra con asteriscos (*) por seguridad. Presiona Enter al terminar.</span>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-texto">
+          <strong>Acceso concedido</strong>
+          <span>Si las credenciales son correctas, el sistema te lleva al menú principal automáticamente.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="alerta">
+      <span class="alerta-icono">⚠️</span>
+      <div class="alerta-texto">
+        <strong>Intentos fallidos</strong>
+        El sistema permite un máximo de 3 intentos. Si los 3 fallan, el programa se cierra automáticamente.
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MENÚ -->
+  <section id="menu">
+    <div class="sec-label">03 — Menú principal</div>
+    <h2>Opciones del menú</h2>
+    <p>Al ingresar correctamente verás el menú principal con cuatro opciones.</p>
+
+    <div class="codigo">
+      <span class="comentario">===== JUEGO DE TABLERO =====</span><br>
+      <span class="normal">1. Iniciar partida</span><br>
+      <span class="normal">2. Ver reglas del juego</span><br>
+      <span class="normal">3. Ver puntaje más alto</span><br>
+      <span class="normal">4. Salir</span><br><br>
+      <span class="comentario">Elige una opción: _</span>
+    </div>
+
+    <div class="foto-placeholder">
+      <img src="Menú.png" style="width:100%; border-radius:12px; margin:5px 0;">
+    </div>
+
+    <table>
+      <tr><th>Opción</th><th>Función</th></tr>
+      <tr><td>1 — Iniciar partida</td><td>Comienza una nueva partida entre dos jugadores</td></tr>
+      <tr><td>2 — Ver reglas</td><td>Muestra las reglas y movimientos de cada pieza</td></tr>
+      <tr><td>3 — Puntaje más alto</td><td>Muestra el mejor puntaje registrado en la sesión</td></tr>
+      <tr><td>4 — Salir</td><td>Cierra el programa</td></tr>
+    </table>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TABLERO -->
+  <section id="tablero">
+    <div class="sec-label">04 — El tablero</div>
+    <h2>Cómo leer el tablero</h2>
+    <p>El tablero es una matriz de 8×8. Las columnas se identifican con letras (A–H) y las filas con números (1–8). Para indicar una casilla combinas letra y número, por ejemplo <strong style="color:var(--acento)">B4</strong>.</p>
+
+    <div class="tablero-demo">
+<pre>
+    A   B   C   D   E   F   G   H
+  +---+---+---+---+---+---+---+---+
+8 | <span class="pieza-n">t</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-n">r</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-n">t</span> | 8
+  +---+---+---+---+---+---+---+---+
+7 | <span class="vacia">.</span> | <span class="pieza-n">s</span> | <span class="pieza-n">s</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-n">s</span> | <span class="pieza-n">s</span> | <span class="vacia">.</span> | 7
+  +---+---+---+---+---+---+---+---+
+6 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 6
+  +---+---+---+---+---+---+---+---+
+5 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 5
+  +---+---+---+---+---+---+---+---+
+4 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 4
+  +---+---+---+---+---+---+---+---+
+3 | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | 3
+  +---+---+---+---+---+---+---+---+
+2 | <span class="vacia">.</span> | <span class="pieza-b">S</span> | <span class="pieza-b">S</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-b">S</span> | <span class="pieza-b">S</span> | <span class="vacia">.</span> | 2
+  +---+---+---+---+---+---+---+---+
+1 | <span class="pieza-b">T</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-b">R</span> | <span class="vacia">.</span> | <span class="vacia">.</span> | <span class="pieza-b">T</span> | 1
+  +---+---+---+---+---+---+---+---+
+    A   B   C   D   E   F   G   H
+</pre>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-titulo">Leyenda de símbolos</div>
+      <table>
+        <tr><th>Símbolo</th><th>Pieza</th><th>Color</th></tr>
+        <tr><td style="color:var(--acento);font-family:monospace;font-size:18px">R</td><td>Rey</td><td style="color:var(--acento)">Blancas (mayúscula)</td></tr>
+        <tr><td style="color:var(--acento);font-family:monospace;font-size:18px">T</td><td>Torre</td><td style="color:var(--acento)">Blancas (mayúscula)</td></tr>
+        <tr><td style="color:var(--acento);font-family:monospace;font-size:18px">S</td><td>Soldado</td><td style="color:var(--acento)">Blancas (mayúscula)</td></tr>
+        <tr><td style="color:var(--acento2);font-family:monospace;font-size:18px">r</td><td>Rey</td><td style="color:var(--acento2)">Negras (minúscula)</td></tr>
+        <tr><td style="color:var(--acento2);font-family:monospace;font-size:18px">t</td><td>Torre</td><td style="color:var(--acento2)">Negras (minúscula)</td></tr>
+        <tr><td style="color:var(--acento2);font-family:monospace;font-size:18px">s</td><td>Soldado</td><td style="color:var(--acento2)">Negras (minúscula)</td></tr>
+        <tr><td style="color:#444;font-family:monospace;font-size:18px">.</td><td>Vacío</td><td style="color:#444">Sin pieza</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PIEZAS -->
+  <section id="piezas">
+    <div class="sec-label">05 — Piezas</div>
+    <h2>Tipos de piezas</h2>
+    <p>Cada jugador inicia con 7 piezas: 1 Rey, 2 Torres y 4 Soldados.</p>
+
+    <div class="piezas-grid">
+      <div class="pieza-card">
+        <div class="pieza-simbolo">R / r</div>
+        <div class="pieza-nombre">Rey</div>
+        <div class="pieza-desc">Se mueve 1 casilla en cualquier dirección: horizontal, vertical o diagonal. Es la pieza más importante — si lo capturan, pierdes.</div>
+      </div>
+      <div class="pieza-card">
+        <div class="pieza-simbolo">T / t</div>
+        <div class="pieza-nombre">Torre</div>
+        <div class="pieza-desc">Se mueve en línea recta (horizontal o vertical) cualquier número de casillas. No puede saltar sobre otras piezas.</div>
+      </div>
+      <div class="pieza-card">
+        <div class="pieza-simbolo">S / s</div>
+        <div class="pieza-nombre">Soldado</div>
+        <div class="pieza-desc">Avanza 1 casilla hacia adelante. Ataca en diagonal. No puede retroceder. Blancas suben, Negras bajan.</div>
+      </div>
+    </div>
+
+    <div class="foto-placeholder" style="margin-top:24px">
+      <img src="Tablero.png" style="width:100%; border-radius: 12px; margin: 5px 0;">
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MOVIMIENTO -->
+  <section id="movimiento">
+    <div class="sec-label">06 — Movimiento</div>
+    <h2>Cómo mover piezas</h2>
+    <p>En cada turno el sistema indica de quién es el turno. Debes ingresar la casilla de origen y la casilla de destino usando el formato <strong style="color:var(--acento)">LetraNúmero</strong>.</p>
+
+    <div class="codigo">
+      <span class="comentario">Turno de: Jugador 1 (Blanco)</span><br>
+      <span class="comentario">Puntaje: 0</span><br><br>
+      <span class="normal">Origen (ej. A1): </span><span style="color:#c8a84b">E1</span><br>
+      <span class="normal">Destino (ej. A2): </span><span style="color:#c8a84b">E2</span>
+    </div>
+
+    <div class="foto-placeholder">
+      <img src="Movimiento.png" style="width:100%; border-radius:12px; margin:5px 0;">
+    </div>
+
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-texto">
+          <strong>Escribe la casilla de origen</strong>
+          <span>Indica dónde está la pieza que quieres mover (ej. E1).</span>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-texto">
+          <strong>Presiona Enter</strong>
+          <span>El sistema pide la casilla de destino.</span>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-texto">
+          <strong>Escribe la casilla de destino</strong>
+          <span>Indica a dónde quieres mover la pieza (ej. E2).</span>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">4</div>
+        <div class="paso-texto">
+          <strong>El sistema valida y ejecuta</strong>
+          <span>Si el movimiento es válido, el tablero se actualiza. Si no, muestra un error y pide el movimiento de nuevo.</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Capturas</h3>
+    <p>Si mueves tu pieza a una casilla ocupada por una pieza rival, la capturas automáticamente. El sistema muestra un mensaje con los puntos ganados.</p>
+
+    <div class="alerta">
+      <span class="alerta-icono">♟️</span>
+      <div class="alerta-texto">
+        <strong>Condición de victoria</strong>
+        El juego termina cuando capturas el Rey del oponente, o cuando eliminas todas sus piezas. El sistema declara al ganador automáticamente.
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PUNTAJE -->
+  <section id="puntaje">
+    <div class="sec-label">07 — Puntaje</div>
+    <h2>Sistema de puntuación</h2>
+    <p>Los puntos se acumulan automáticamente al capturar piezas del rival durante la partida.</p>
+
+    <table>
+      <tr><th>Pieza capturada</th><th>Puntos</th></tr>
+      <tr><td>Soldado</td><td style="color:var(--acento)">10 puntos</td></tr>
+      <tr><td>Torre</td><td style="color:var(--acento)">10 puntos</td></tr>
+      <tr><td>Rey</td><td style="color:var(--acento)">60 puntos (10 + 50 adicionales)</td></tr>
+    </table>
+
+    <p>Al finalizar la partida, el puntaje del ganador se compara con el récord actual. Si es mayor, se actualiza automáticamente. Para consultar el puntaje más alto usa la opción 3 del menú.</p>
+
+    <div class="foto-placeholder">
+      <img src="Puntaje.png" style="width:100%; border-radius:12px; margin:5px 0;">
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ERRORES -->
+  <section id="errores">
+    <div class="sec-label">08 — Mensajes del sistema</div>
+    <h2>Errores y advertencias</h2>
+
+    <table>
+      <tr><th>Mensaje</th><th>Causa</th><th>Solución</th></tr>
+      <tr><td>Coordenadas inválidas</td><td>Formato incorrecto (ej. "11" o "ZZ")</td><td>Usa formato LetraNúmero (ej. B4)</td></tr>
+      <tr><td>Movimiento inválido</td><td>La pieza no puede moverse así</td><td>Revisa las reglas de esa pieza</td></tr>
+      <tr><td>Credenciales incorrectas</td><td>Usuario o contraseña equivocados</td><td>Verifica e intenta de nuevo (máx. 3 veces)</td></tr>
+      <tr><td>Aún no hay puntajes</td><td>Ninguna partida ha terminado</td><td>Juega y completa una partida primero</td></tr>
+    </table>
+
+    <div class="foto-placeholder">
+      <img src="Error.png" style="width: 100%; border-radius:12px; margin:5px 0;">
+  </section>
+
+</div>
+
+<footer>
+  Universidad Rafael Landívar — Campus Quetzaltenango &nbsp;·&nbsp; Facultad de Ingeniería &nbsp;·&nbsp; Pensamiento Computacional 2026
+</footer>
+
+<script>
+  const tablero = document.getElementById('tablero-deco');
+  for (let f = 0; f < 8; f++) {
+    for (let c = 0; c < 8; c++) {
+      const cel = document.createElement('div');
+      cel.className = 'celda ' + ((f + c) % 2 === 0 ? 'clara' : 'oscura');
+      tablero.appendChild(cel);
+    }
+  }
+</script>
+</body>
+</html>
